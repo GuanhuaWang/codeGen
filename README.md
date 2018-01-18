@@ -12,3 +12,12 @@ unpack and install
 ## run test
 
 `python cog.py test.txt`
+
+## simple example for code generation from python to c
+
+/*[[[cog
+import cog
+fnames = ['DoSomething', 'DoAnotherThing', 'DoLastThing']
+for fn in fnames:
+    cog.outl("void %s();" % fn)
+]]]*/
