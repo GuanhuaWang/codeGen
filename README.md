@@ -27,6 +27,7 @@ unpack and install
 
 `]]]*/`
 
+`//[[[end]]]`
 
 It will generate the followings:
 
