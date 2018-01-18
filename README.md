@@ -16,7 +16,6 @@ unpack and install
 ## simple example for code generation from python to c
 
 `/*[[[cog`
-
 `import cog`
 
 `fnames = ['DoSomething', 'DoAnotherThing', 'DoLastThing']`
