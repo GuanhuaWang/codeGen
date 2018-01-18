@@ -25,3 +25,10 @@ unpack and install
 `    cog.outl("void %s();" % fn)`
 
 `]]]*/`
+
+
+It will generate the followings:
+
+`void DoSomething();`
+`void DoAnotherThing();`
+`void DoLastThing();`
