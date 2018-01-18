@@ -15,6 +15,8 @@ unpack and install
 
 ## simple example for code generation from python to c
 
+Basically, one can write the python code within `[[[cog...]]]` and end the code generation process with `[[[end]]]`
+
 `/*[[[cog`
 
 `import cog`
@@ -29,7 +31,7 @@ unpack and install
 
 `//[[[end]]]`
 
-It will generate the followings:
+It will generate the following c code:
 
 `void DoSomething();`
 
