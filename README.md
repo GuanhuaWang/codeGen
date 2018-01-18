@@ -8,3 +8,7 @@ https://pypi.python.org/pypi/cogapp
 unpack and install
 
 `python setup.py install`
+
+## run test
+
+`python cog.py test.txt`
