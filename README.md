@@ -1,7 +1,7 @@
 # codeGen
 a simple python to c/cuda code generator
 
-## install Cog
+## Install Cog
 
 https://pypi.python.org/pypi/cogapp
 
@@ -9,11 +9,11 @@ unpack and install
 
 `python setup.py install`
 
-## run test
+## Run test
 
 `python cog.py -o output.txt simpletest.py`
 
-## simple example for code generation from python to c
+## Simple example for code generation from python to c
 
 Basically, one can write the python code within `[[[cog...]]]` and end the code generation process with `[[[end]]]`
 
