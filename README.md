@@ -9,11 +9,11 @@ unpack and install
 
 `python setup.py install`
 
-## Run test
+## run test
 
-`python cog.py -o output.txt simpletest.py`
+`python cog.py -o output.cpp simpletest.py`
 
-## Simple example for code generation from python to c
+## simple example for code generation from python to c
 
 Basically, one can write the python code within `[[[cog...]]]` and end the code generation process with `[[[end]]]`
 
