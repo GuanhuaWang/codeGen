@@ -11,7 +11,7 @@ unpack and install
 
 ## run test
 
-`python cog.py test.txt`
+`python cog.py -o output.txt simpletest.py`
 
 ## simple example for code generation from python to c
 
