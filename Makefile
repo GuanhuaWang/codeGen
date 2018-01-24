@@ -3,7 +3,7 @@
 CC = nvcc
 CC_OPTS = -Wno-deprecated-gpu-targets
 
-TARGETS = realcuda
+TARGETS = realcuda broadcast
 
 .PHONY: all build clean
 

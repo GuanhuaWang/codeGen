@@ -4,6 +4,19 @@
 #include<time.h>
 #include<cuda.h>
 #include "fiddlelink.h"
+
+void *peer_access(void *addr){
+        int *tx1 = (int*)addr;
+        int *rx1 = (int*)(addr + sizeof(int));
+        int tx = *tx1;
+        int rx = *rx1;
+        printf("tx is %d, rx is %d\n",tx,rx);
+        cudaSetDevice(tx);
+        cudaDeviceEnablePeerAccess(rx,0);
+}
+
+
+
 void pair_stream(int rx, int tx, void* dst, void* src, double size, int type){
 
 	if(type == 3){

@@ -9,7 +9,7 @@
 #define ROW 12
 
 
-void read_schedule(const char* file_name, int matrix[12][5])
+void read_schedule(const char* file_name, int matrix[ROW][5])
 {
    char buffer[1024] ;
    char *record,*line;
@@ -34,7 +34,7 @@ void read_schedule(const char* file_name, int matrix[12][5])
 
 	return ;
 }
-
+/*
 void *peer_access(void *addr){
 	int *tx1 = (int*)addr;
 	int *rx1 = (int*)(addr + sizeof(int));
@@ -44,7 +44,7 @@ void *peer_access(void *addr){
 	cudaSetDevice(tx);
 	cudaDeviceEnablePeerAccess(rx,0);
 }
-
+*/
 int distinct(int arr[],int n){
 	int count = 0;
 	for(int i = 0;i<n;i++){
@@ -59,7 +59,7 @@ int distinct(int arr[],int n){
 		}
 	}	
 	printf("\n");
-	printf("count is %i\n", count);
+	printf("count of distinct GPU node is %i\n", count);
 	return count;
 }
 
@@ -87,6 +87,7 @@ int main(){
 
 	read_schedule(name,matrix);
 
+	printf("==============Print scheme================\n");
 	for(int i =0;i<ROW;i++){
 		column0[i] = matrix[i][0];
         	for(int j = 0;j<5;j++){
@@ -97,9 +98,12 @@ int main(){
 
 	int batch = sizeof(matrix[0])/sizeof(int)-2;
 	long int total_size = sizeof(int)*SIZE*SIZE;
+
+	printf("\n==============Total Data Size in Transfer================\n");
 	printf("total data size on GPU0 is %f GB\n",total_size/(1024.0*1024.0*1024.0));
         long int batch_size = total_size/batch;
 
+	printf("\n==============Count distinct GPU in use================\n");
 	int count = distinct(column0,ROW);
 	int* mem[count];	
 
@@ -111,7 +115,7 @@ int main(){
 	int* partition;
 
 	partition = one_hot(matrix);
-
+	printf("\n==============OneHot to Number transfer================\n");
         for(int i =0;i<ROW;i++){
                 printf("row %i,partition %i\n",i,partition[i]);
         }
@@ -127,6 +131,7 @@ int main(){
 // pre transfer setup (enable peer access, allocate GPU mem)
 
 //Open multi-thread for enable peer access in parallel
+	printf("\n==============Pthread open peer access================\n");
 	int peer[ROW][2];
 	for(int i =0;i<ROW;i++){
 		peer[i][0]=matrix[i][0];
@@ -143,13 +148,52 @@ int main(){
 	}
 
 // Start transfer based on data scheduling scheme (colomn 2 - N)
+	printf("\n==============Print data transfer================\n");
 	for(int i =0;i<ROW;i++){
 		if(partition[i]!=0)
-			pair_stream(matrix[i][1],matrix[i][0],addr[matrix[i][1]][partition[i]],addr[matrix[i][0]][partition[i]],batch_size,1);	
+			printf("start transfer -- rx: %i, tx: %i, addr_rx: addr[%i][%i], addr_tx:addr[%i][%i], batch_size: %f GB\n", matrix[i][1], matrix[i][0],matrix[i][1],partition[i]-1,matrix[i][0],partition[i]-1,batch_size/(1024.0*1024.0*1024.0));
+			pair_stream(matrix[i][1],matrix[i][0],addr[matrix[i][1]][partition[i]-1],addr[matrix[i][0]][partition[i]-1],batch_size,1);	
 	}
 
 
 // post transfer (e.g. Free memory)
+	for(int i = 0; i<count;i++){
+		cudaFree(mem[i]);
+	}
+
+//Print out to .cu file
+	FILE *output = fopen("broadcast.cu","w");
+	fprintf(output,"//This is generated cuda code using scheduling scheme\n");
+//Print header
+	fprintf(output,"#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n#include <time.h>\n#include <cuda.h>\n#include <pthread.h>\n#include \"fiddlelink.h\"\n\n");
+//Print main function
+	fprintf(output,"int main(){\n\tlong int total_size = %li;\n",total_size);
+	fprintf(output,"\tlong int batch_size = %li;\n",batch_size);
+//Cuda Malloc
+	fprintf(output,"\n\tint* mem[%i];\n",count);
+	fprintf(output,"\tfor(int x = 0;x<%i;x++){\n",count);
+	fprintf(output,"\t\tcudaSetDevice(x);\n\t\tcudaMalloc((void**)&mem[x],total_size);\n\t}\n");
+//Split Mem addr to # of partitions
+	fprintf(output,"\n\tvoid* addr[%i][%i];\n",count,batch);
+	fprintf(output,"\tfor(int i = 0; i<%i;i++){\n",count);
+	fprintf(output,"\t\tfor(int j =0; j<%i;j++){\n",batch);
+	fprintf(output,"\t\t\taddr[i][j] = (void*)((long long unsigned)mem[i] + j * batch_size);\n\t\t}\n\t}\n\n");	
+//Start data transfer
+	for(int i = 0;i<ROW;i++){
+		if(partition[i]!=0)
+			fprintf(output,"\tpair_stream(%i,%i,addr[%i][%i],addr[%i][%i],batch_size,1);\n",matrix[i][1],matrix[i][0],matrix[i][1],partition[i]-1,matrix[i][0],partition[i]-1);
+	}	
+
+//Free Memory
+	fprintf(output,"\n\tfor(int i = 0; i<%i;i++){\n",count);
+	fprintf(output,"\t\tcudaFree(mem[i]);\n\t}\n");
+
+//End of line
+	fprintf(output,"}\n");
+	fclose(output);
+	
+
+
 
 	return 0;
 }
