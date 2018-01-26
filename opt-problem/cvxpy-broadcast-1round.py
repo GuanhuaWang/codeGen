@@ -167,7 +167,7 @@ def main():
   print "num_nodes ", num_nodes, " num_partitions ", num_partitions
 
   arc_filename = sys.argv[3]
-
+  print "read topology file ", arc_filename
   arcs = {} # Map from (src, dest) -> arc_id
   rev_arcs = {} # Map from arc_id -> rev_arc_id
   cycles = [] # List of cycles. Each cycle is of the form [arc_id1, arc_id2, ...]
@@ -207,12 +207,13 @@ def main():
     print arc[0], "->", arc[1], ":", (np.round(final_flow[arc_id, :]))
 
 # added by Guanhua, print out to .txt file
+  print "writing generated scheme to dir.csv"
   with open("dir.csv",'ab') as text_file:
     for arc in sorted(arcs.keys()):
       arc_id = arcs[arc]
       text_file.write("%s,%s," %(arc[0],arc[1]))
       np.savetxt(text_file,np.absolute(np.round(final_flow[arc_id, :])),delimiter=",",newline='\n')
-
+  
 
 if __name__ == "__main__":
   main()

@@ -16,7 +16,7 @@ void read_schedule(const char* file_name, int matrix[ROW][5])
    FILE *fstream = fopen(file_name,"r");
    if(fstream == NULL)
    {
-      printf("\n file opening failed ");
+      printf("\n file opening failed \n");
       return ;
    }
    while((line=fgets(buffer,sizeof(buffer),fstream))!=NULL)
@@ -86,7 +86,7 @@ int main(){
 
 	read_schedule(name,matrix);
 
-	printf("==============Print scheme================\n");
+	printf("======================Print scheme=======================\n");
 	for(int i =0;i<ROW;i++){
 		column0[i] = matrix[i][0];
         	for(int j = 0;j<5;j++){
@@ -102,7 +102,7 @@ int main(){
 	printf("total data size on GPU0 is %f GB\n",total_size/(1024.0*1024.0*1024.0));
         long int batch_size = total_size/batch;
 
-	printf("\n==============Count distinct GPU in use================\n");
+	printf("\n================Count distinct GPU in use================\n");
 	int count = distinct(column0,ROW);
 	int* mem[count];	
 
@@ -114,7 +114,7 @@ int main(){
 	int* partition;
 
 	partition = one_hot(matrix);
-	printf("\n==============OneHot to Number transfer================\n");
+	printf("\n=================OneHot to Number transfer===============\n");
         for(int i =0;i<ROW;i++){
                 printf("row %i,partition %i\n",i,partition[i]);
         }
@@ -130,7 +130,7 @@ int main(){
 // pre transfer setup (enable peer access, allocate GPU mem)
 
 //Open multi-thread for enable peer access in parallel
-	printf("\n==============Pthread open peer access================\n");
+	printf("\n==============Pthread open peer access===================\n");
 	int peer[ROW][2];
 	for(int i =0;i<ROW;i++){
 		peer[i][0]=matrix[i][0];
@@ -147,7 +147,7 @@ int main(){
 	}
 
 // Start transfer based on data scheduling scheme (colomn 2 - N)
-	printf("\n==============Print data transfer================\n");
+	printf("\n===================Print data transfer===================\n");
 	for(int i =0;i<ROW;i++){
 		if(partition[i]!=0)
 			printf("start transfer -- rx: %i, tx: %i, addr_rx: addr[%i][%i], addr_tx: addr[%i][%i], batch_size: %f GB\n", matrix[i][1], matrix[i][0],matrix[i][1],partition[i]-1,matrix[i][0],partition[i]-1,batch_size/(1024.0*1024.0*1024.0));
@@ -160,6 +160,7 @@ int main(){
 		cudaFree(mem[i]);
 	}
 
+	printf("\n==============Generate code to broadcast.cu==============\n");
 //Print out to .cu file
 	FILE *output = fopen("broadcast.cu","w");
 	fprintf(output,"//This is generated cuda code using scheduling scheme\n");
@@ -188,6 +189,7 @@ int main(){
 	fprintf(output,"\t\tcudaFree(mem[i]);\n\t}\n");
 
 //End of line
+	fprintf(output,"\n\treturn 0;\n");
 	fprintf(output,"}\n");
 	fclose(output);
 	
