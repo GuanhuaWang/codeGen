@@ -8,7 +8,6 @@
 #define SIZE 10240
 #define ROW 12
 
-
 void read_schedule(const char* file_name, int matrix[ROW][5])
 {
    char buffer[1024] ;
@@ -151,7 +150,7 @@ int main(){
 	printf("\n==============Print data transfer================\n");
 	for(int i =0;i<ROW;i++){
 		if(partition[i]!=0)
-			printf("start transfer -- rx: %i, tx: %i, addr_rx: addr[%i][%i], addr_tx:addr[%i][%i], batch_size: %f GB\n", matrix[i][1], matrix[i][0],matrix[i][1],partition[i]-1,matrix[i][0],partition[i]-1,batch_size/(1024.0*1024.0*1024.0));
+			printf("start transfer -- rx: %i, tx: %i, addr_rx: addr[%i][%i], addr_tx: addr[%i][%i], batch_size: %f GB\n", matrix[i][1], matrix[i][0],matrix[i][1],partition[i]-1,matrix[i][0],partition[i]-1,batch_size/(1024.0*1024.0*1024.0));
 			pair_stream(matrix[i][1],matrix[i][0],addr[matrix[i][1]][partition[i]-1],addr[matrix[i][0]][partition[i]-1],batch_size,1);	
 	}
 

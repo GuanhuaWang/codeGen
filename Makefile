@@ -22,4 +22,4 @@ build: $(TARGETS)
 fiddlelink.o: fiddlelink.h
 
 clean:
-	rm -f *.o $(TARGETS) 
+	rm -f *.o $(TARGETS)
